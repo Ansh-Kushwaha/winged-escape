@@ -1,6 +1,6 @@
 import pygame, sys, time
 from settings import *
-from sprites import BG
+from sprites import BG, Ground, Birdy
 
 class Game:
     def __init__(self):
@@ -9,16 +9,27 @@ class Game:
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption('Winged Escape')
 
+        # icon
+        icon = pygame.image.load('../graphics/icons/icon.png')
+        pygame.display.set_icon(icon)
+
+        # backgrounds
+        bg = []
+        bg.append(pygame.image.load('../graphics/environment/background_day.png').convert())
+        bg.append(pygame.image.load('../graphics/environment/background_night.png').convert())
+
         # sprite groups
         self.all_sprites = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
 
         # scaling
-        bg_height = pygame.image.load('../graphics/environment/background.png').get_height()
+        bg_height = bg[0].get_height()
         self.scale_factor = WINDOW_HEIGHT / bg_height
 
         # sprite setup
-        BG(self.all_sprites, self.scale_factor)
+        BG(self.all_sprites, self.scale_factor, bg)
+        Ground(self.all_sprites, self.scale_factor * 0.8)
+        self.bird = Birdy(self.all_sprites, self.scale_factor * 0.6)
     
     def run(self):
         st_time = time.time()
@@ -30,8 +41,10 @@ class Game:
             # event loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.exit()
+                    pygame.quit()
                     sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+                    self.bird.accelerate()
             
             # game logic
             self.display_surface.fill('white')
