@@ -28,12 +28,17 @@ class Game:
 
         # sprite setup
         BG(self.all_sprites, self.scale_factor, bg)
-        Ground(self.all_sprites, self.scale_factor)
+        Ground([self.all_sprites, self.collision_sprites], self.scale_factor)
         self.bird = Birdy(self.all_sprites, self.scale_factor * 1.2)
 
         # event time
         self.obstacle_timer = pygame.USEREVENT + 1
         pygame.time.set_timer(self.obstacle_timer, 750)
+
+    def collisions(self):
+        if pygame.sprite.spritecollide(self.bird, self.collision_sprites, False):
+            pygame.quit()
+            sys.exit()
     
     def run(self):
         st_time = time.time()
@@ -50,11 +55,12 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
                     self.bird.accelerate()
                 if event.type == self.obstacle_timer:
-                    Obstacle(self.all_sprites, self.scale_factor)
+                    Obstacle([self.all_sprites, self.collision_sprites], self.scale_factor)
             
             # game logic
             self.display_surface.fill('white')
             self.all_sprites.update(delT)
+            self.collisions()
             self.all_sprites.draw(self.display_surface)
 
             pygame.display.update()

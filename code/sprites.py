@@ -9,19 +9,20 @@ class BG(pygame.sprite.Sprite):
 
         # background switch control
         # self.bg_time = 0
-        self.bg_index = 0
+        self.bg_index = choice((0, 1))
         self.bg_image = bg[self.bg_index]
 
         full_width = self.bg_image.get_width() * scale_factor
         full_height = self.bg_image.get_height() * scale_factor
         full_sized_image = pygame.transform.scale(self.bg_image, (full_width, full_height))
 
-        self.image = pygame.Surface((full_width * 3, full_height))
+        self.image = pygame.Surface((full_width * 2, full_height))
         self.image.blit(full_sized_image, (0, 0))
         self.image.blit(full_sized_image, (full_width, 0))
 
         self.rect = self.image.get_rect(topleft=(0, 0))
         self.pos = pygame.math.Vector2(self.rect.topleft)
+
 
     def update(self, delT):
         self.pos.x -= 60 * delT
@@ -29,7 +30,6 @@ class BG(pygame.sprite.Sprite):
         if self.rect.centerx <= 0:
             self.pos.x = 0
         self.rect.x = round(self.pos.x)
-
 
 class Ground(pygame.sprite.Sprite):
     def __init__(self, group, scale_factor):
@@ -42,6 +42,9 @@ class Ground(pygame.sprite.Sprite):
         # position
         self.rect = self.image.get_rect(bottomleft=(0, WINDOW_HEIGHT))
         self.pos = pygame.math.Vector2(self.rect.topleft)
+
+        # mask
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, delT):
         self.pos.x -= 160 * delT
@@ -67,6 +70,9 @@ class Birdy(pygame.sprite.Sprite):
         self.g = 10
         self.direction = 0
 
+        # mask
+        self.mask = pygame.mask.from_surface(self.image)
+
     def import_frames(self, scale_factor):
         self.frames = []
         for i in range(3):
@@ -90,6 +96,7 @@ class Birdy(pygame.sprite.Sprite):
     def rotate(self):
         rotated_birdy = pygame.transform.rotozoom(self.image, -self.direction * 8, 1)
         self.image = rotated_birdy
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, delT):
         self.gravity(delT)
@@ -101,25 +108,29 @@ class Obstacle(pygame.sprite.Sprite):
         super().__init__(group)
 
         single_obstacle = pygame.image.load(f'../graphics/obstacles/o{choice((1, 2))}.png').convert_alpha()
-        self.gap = randint(120, 180)
 
         obs_height = single_obstacle.get_height() * scale_factor
         obs_width = single_obstacle.get_width() * scale_factor
 
         scaled_obstacle = pygame.transform.scale(single_obstacle, (obs_width, obs_height))
-        flipped_obstacle = pygame.transform.flip(scaled_obstacle, True, True)
-
-        # 
+        flipped_obstacle = pygame.transform.flip(scaled_obstacle, False, True)
 
         # image
-        self.image = pygame.Surface((obs_width, obs_height * 2 + self.gap), pygame.SRCALPHA)
+        self.gap = randint(120, 180)
+        self.image = pygame.Surface((obs_width, obs_height), pygame.SRCALPHA)
+        self.image.fill((0, 0, 0, 0))
         self.image.blit(flipped_obstacle, (0, 0))
         self.image.blit(scaled_obstacle, (0, obs_height + self.gap))
+        pygame.Surface.set_colorkey(self.image, (0, 0, 0))
+
 
         x = WINDOW_WIDTH + randint(30, 70)
         y = WINDOW_HEIGHT + randint(40, 200)
         self.rect = self.image.get_rect(midbottom=(x, y))
         self.pos = pygame.math.Vector2(self.rect.topleft)
+        
+        # mask
+        self.mask = pygame.mask.from_surface(self.image)
             
     def update(self, delT):
         self.pos.x -= 320 * delT # 320 or 160
@@ -128,4 +139,4 @@ class Obstacle(pygame.sprite.Sprite):
         # kill
         if self.rect.right <= -40:
             self.kill()
-            print('killed')
+
