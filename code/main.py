@@ -1,6 +1,6 @@
 import pygame, sys, time
 from settings import *
-from sprites import BG, Ground, Birdy
+from sprites import BG, Ground, Birdy, Obstacle
 
 class Game:
     def __init__(self):
@@ -28,8 +28,12 @@ class Game:
 
         # sprite setup
         BG(self.all_sprites, self.scale_factor, bg)
-        Ground(self.all_sprites, self.scale_factor * 0.8)
-        self.bird = Birdy(self.all_sprites, self.scale_factor * 0.6)
+        Ground(self.all_sprites, self.scale_factor)
+        self.bird = Birdy(self.all_sprites, self.scale_factor * 1.2)
+
+        # event time
+        self.obstacle_timer = pygame.USEREVENT + 1
+        pygame.time.set_timer(self.obstacle_timer, 750)
     
     def run(self):
         st_time = time.time()
@@ -45,6 +49,8 @@ class Game:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
                     self.bird.accelerate()
+                if event.type == self.obstacle_timer:
+                    Obstacle(self.all_sprites, self.scale_factor)
             
             # game logic
             self.display_surface.fill('white')
