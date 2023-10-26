@@ -1,7 +1,7 @@
 import pygame, sys, time
 from settings import *
 from sprites import BG, Ground, Birdy, Obstacle
-from random import choice
+from random import choice, randint
 
 class Game:
     def __init__(self):
@@ -22,6 +22,7 @@ class Game:
         # sprite groups
         self.all_sprites = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
+        self.pipes = pygame.sprite.Group()
 
         # scaling
         bg_height = bg[0].get_height()
@@ -59,14 +60,16 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
                     self.bird.accelerate()
                 if event.type == self.obstacle_timer:
-                    Obstacle([self.all_sprites, self.collision_sprites], self.scale_factor, self.scene)
+                    x = WINDOW_WIDTH + randint(30, 70)
+                    y = randint(40, 120)
+                    Obstacle([self.pipes, self.all_sprites, self.collision_sprites], self.scale_factor, False, x, y, self.scene)
+                    Obstacle([self.pipes, self.all_sprites, self.collision_sprites], self.scale_factor, True, x, y, self.scene)
             
             # game logic
             self.display_surface.fill('white')
             self.all_sprites.update(delT)
             self.collisions()
             self.all_sprites.draw(self.display_surface)
-
             pygame.display.update()
             self.clock.tick(FRAMERATE)
 

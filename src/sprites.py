@@ -72,7 +72,7 @@ class Birdy(pygame.sprite.Sprite):
         self.frames = []
         for i in range(3):
             # print(f'../graphics/plane/red{i}.png')
-            frame = pygame.image.load(f'../graphics/birds/red/r{i}.png').convert_alpha()
+            frame = pygame.image.load(f'../graphics/birds/yellow/y{i}.png').convert_alpha()
             scaled_frame = pygame.transform.scale(frame, pygame.Vector2(frame.get_size()) * scale_factor)
             self.frames.append(scaled_frame)
             
@@ -99,19 +99,21 @@ class Birdy(pygame.sprite.Sprite):
         self.rotate()
 
 class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, group, scale_factor, idx):
+    def __init__(self, group, scale_factor, flipped, x, y, idx):
         super().__init__(group)
+        self.pipe_gap = 100
 
-        pipe = pygame.image.load(f'../graphics/pipes/{idx}.png').convert_alpha()
+        pipe = pygame.image.load(f'../graphics/pipes/o{idx}.png').convert_alpha()
 
         # image
         self.image = pygame.transform.scale(pipe, pygame.math.Vector2(pipe.get_size()) * scale_factor)
-        pygame.Surface.set_colorkey(self.image, (0, 0, 0))
-
-        x = WINDOW_WIDTH + randint(30, 70)
-        y = WINDOW_HEIGHT + randint(40, 200)
-        self.rect = self.image.get_rect(midbottom=(x, y))
-        self.pos = pygame.math.Vector2(self.rect.topleft)
+        if flipped:
+            self.image = pygame.transform.flip(self.image, False, True)
+            self.rect = self.image.get_rect(midbottom=(x, 0 + y + self.pipe_gap))
+            self.pos = pygame.math.Vector2(self.rect.topleft)
+        else:
+            self.rect = self.image.get_rect(midbottom=(x, WINDOW_HEIGHT + y))
+            self.pos = pygame.math.Vector2(self.rect.topleft)
         
         # mask
         self.mask = pygame.mask.from_surface(self.image)
