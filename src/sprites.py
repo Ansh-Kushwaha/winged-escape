@@ -5,12 +5,7 @@ from random import choice, randint
 class BG(pygame.sprite.Sprite):
     def __init__(self, group, scale_factor, bg):
         super().__init__(group)
-        self.bg = bg
-
-        # background switch control
-        # self.bg_time = 0
-        self.bg_index = choice((0, 1))
-        self.bg_image = bg[self.bg_index]
+        self.bg_image = bg
 
         full_width = self.bg_image.get_width() * scale_factor
         full_height = self.bg_image.get_height() * scale_factor
@@ -104,25 +99,14 @@ class Birdy(pygame.sprite.Sprite):
         self.rotate()
 
 class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, group, scale_factor):
+    def __init__(self, group, scale_factor, idx):
         super().__init__(group)
 
-        single_obstacle = pygame.image.load(f'../graphics/obstacles/o{choice((1, 2))}.png').convert_alpha()
-
-        obs_height = single_obstacle.get_height() * scale_factor
-        obs_width = single_obstacle.get_width() * scale_factor
-
-        scaled_obstacle = pygame.transform.scale(single_obstacle, (obs_width, obs_height))
-        flipped_obstacle = pygame.transform.flip(scaled_obstacle, False, True)
+        pipe = pygame.image.load(f'../graphics/pipes/{idx}.png').convert_alpha()
 
         # image
-        self.gap = randint(120, 180)
-        self.image = pygame.Surface((obs_width, obs_height), pygame.SRCALPHA)
-        self.image.fill((0, 0, 0, 0))
-        self.image.blit(flipped_obstacle, (0, 0))
-        self.image.blit(scaled_obstacle, (0, obs_height + self.gap))
+        self.image = pygame.transform.scale(pipe, pygame.math.Vector2(pipe.get_size()) * scale_factor)
         pygame.Surface.set_colorkey(self.image, (0, 0, 0))
-
 
         x = WINDOW_WIDTH + randint(30, 70)
         y = WINDOW_HEIGHT + randint(40, 200)
@@ -131,7 +115,7 @@ class Obstacle(pygame.sprite.Sprite):
         
         # mask
         self.mask = pygame.mask.from_surface(self.image)
-            
+        
     def update(self, delT):
         self.pos.x -= 320 * delT # 320 or 160
         self.rect.x = round(self.pos.x)

@@ -1,6 +1,7 @@
 import pygame, sys, time
 from settings import *
 from sprites import BG, Ground, Birdy, Obstacle
+from random import choice
 
 class Game:
     def __init__(self):
@@ -26,8 +27,11 @@ class Game:
         bg_height = bg[0].get_height()
         self.scale_factor = WINDOW_HEIGHT / bg_height
 
+        # day or night
+        self.scene = choice((0, 1))
+
         # sprite setup
-        BG(self.all_sprites, self.scale_factor, bg)
+        BG(self.all_sprites, self.scale_factor, bg[self.scene])
         Ground([self.all_sprites, self.collision_sprites], self.scale_factor)
         self.bird = Birdy(self.all_sprites, self.scale_factor * 1.2)
 
@@ -55,7 +59,7 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
                     self.bird.accelerate()
                 if event.type == self.obstacle_timer:
-                    Obstacle([self.all_sprites, self.collision_sprites], self.scale_factor)
+                    Obstacle([self.all_sprites, self.collision_sprites], self.scale_factor, self.scene)
             
             # game logic
             self.display_surface.fill('white')
