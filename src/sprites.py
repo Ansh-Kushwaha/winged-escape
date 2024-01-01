@@ -82,7 +82,7 @@ class Birdy(pygame.sprite.Sprite):
         self.rect.y = round(self.pos.y)
 
     def accelerate(self):
-        self.direction = -4
+        self.direction = -3
 
     def animate(self, delT):
         self.frame_index += 5 * delT
@@ -98,10 +98,11 @@ class Birdy(pygame.sprite.Sprite):
         self.animate(delT)
         self.rotate()
 
-class Obstacle(pygame.sprite.Sprite):
+class Pipe(pygame.sprite.Sprite):
     def __init__(self, group, scale_factor, flipped, x, y, idx):
         super().__init__(group)
-        self.pipe_gap = 100
+        self.pipe_gap = 220
+        self.scored = False
 
         pipe = pygame.image.load(f'../graphics/pipes/o{idx}.png').convert_alpha()
 
@@ -111,9 +112,11 @@ class Obstacle(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(self.image, False, True)
             self.rect = self.image.get_rect(midbottom=(x, 0 + y + self.pipe_gap))
             self.pos = pygame.math.Vector2(self.rect.topleft)
+            self.type = 'top'
         else:
-            self.rect = self.image.get_rect(midbottom=(x, WINDOW_HEIGHT + y))
+            self.rect = self.image.get_rect(midbottom=(x, WINDOW_HEIGHT + y + self.pipe_gap // 2))
             self.pos = pygame.math.Vector2(self.rect.topleft)
+            self.type = 'bottom'
         
         # mask
         self.mask = pygame.mask.from_surface(self.image)
@@ -125,4 +128,4 @@ class Obstacle(pygame.sprite.Sprite):
         # kill
         if self.rect.right <= -40:
             self.kill()
-
+    
